@@ -1,27 +1,9 @@
 function onCreate()
+	addTheDamnSprites()
 	addShaderShit()
 	makeCharacters()
 
 	changeBFIcon('bfbl')
-
-	makeAnimatedLuaSprite('noisebomb', 'backgrounds/peppino/delivery/bloodsauce/noise-bomb', -850, -200)
-	addAnimationByPrefix('noisebomb', 'bg', 'noise-bomb idle', 15, true)
-	addLuaSprite('noisebomb', true)
-	setProperty('noisebomb.antialiasing',false)
-	scaleObject('noisebomb', 6, 6)
-	setProperty('noisebomb.visible', false)
-
-	setProperty('noisebomb.x', getProperty('noisebomb.x') - 250)
-	setProperty('noisebomb.y', getProperty('noisebomb.y') - 250)
-
-
-	makeLuaSprite('BG1 hole', 'backgrounds/Awesomix/BG1 hole', -750, -320);
-	setScrollFactor('BG1 hole', 0.8, 0.8);
-	scaleObject('BG1 hole', 0.8, 0.8);
-	addLuaSprite('BG1 hole', false);
-	setProperty('BG1 hole.visible', false)
-
-
 
 	makeHealthIcon('iconP4', 'bob', false)
 	setObjectOrder('iconP4', getObjectOrder('iconP2') + 1)
@@ -37,7 +19,10 @@ function onCreate()
 	setObjectOrder('dad2', getObjectOrder('rain') - 1)
 	setObjectOrder('boyfriend1', getObjectOrder('rain') - 1)
 	setObjectOrder('noisebomb', getObjectOrder('rain') - 1)
+	setObjectOrder('cup countdown', getObjectOrder('intro') - 1)
 end
+
+turnOnBotplay = false
 
 function onEvent(n, v1, v2)
 	if n == 'Asbel' then
@@ -218,6 +203,9 @@ function onEvent(n, v1, v2)
 			setProperty('BG1 hole.visible', true)
 			setObjectOrder('BG1 hole', getObjectOrder('BG1') + 1)
 
+			playSound('nonsenseboom', 0.4, 'nonsenseboom')
+			triggerEvent('Screen Shake', '0.35, 0.05', '0.35, 0.05');
+
 			doTweenX('mat', 'dad', getProperty('dad.x') - 225, 0.25, 'quintInOut')
 			doTweenX('shep', 'boyfriend', getProperty('boyfriend.x') + 125, 0.25, 'quintInOut')
 
@@ -233,6 +221,72 @@ function onEvent(n, v1, v2)
 
 			changeDadIcon('police-guy')
 			updateHealthbar(getProperty('dad1.iconColor'))
+		end
+
+		if v1 == 'cup-intro' then
+			playSound('cupheadenter')
+			setProperty('intro.alpha', 1)
+			playBGAnimation('intro', 'enter', true, true)
+
+		     if getPropertyFromClass("flixel.FlxG", 'save.data.botplay') == false then
+			   turnOnBotplay = true
+			   setPropertyFromClass("flixel.FlxG", 'save.data.botplay', true)
+		    end
+		end
+
+		if v1 == 'cup-countdown' then
+			setProperty('cup countdown.alpha', 1)
+			playBGAnimation('cup countdown', 'idle', true, false)
+		end
+
+		if v1 == 'cup-intro-2' then
+			playBGAnimation('intro', 'enter', true, false)
+		end
+
+		if v1 == 'cup-intro-end' then
+			setProperty('cup countdown.alpha', 0)
+		end
+
+		if v1 == 'cup-countdown-end' then
+			setProperty('cup countdown.alpha', 0)
+
+			if turnOnBotplay == true then
+			   turnOnBotplay = false
+			   setPropertyFromClass("flixel.FlxG", 'save.data.botplay', false)
+			end
+		end
+
+		if v1 == 'bye stage' then
+			doTweenAlpha('black hi', 'black', 1, 0.75, 'cubeout')
+
+			changeLuaCharacter('dad1', 'gold')
+			setProperty('dad1.alpha', 0)
+			doTweenAlpha('gold hi', 'dad1', 1, 0.75, 'cubeout')
+			setObjectOrder('dad1', getObjectOrder('black') + 1)
+
+			doTweenAlpha('static1', 'static1', 0, 0.75, 'cubeout')
+			doTweenAlpha('static2', 'static2', 0, 0.75, 'cubeout')
+		end
+
+		if v1 == 'gold hi' then
+			setObjectOrder('dad1', getObjectOrder('black') - 1)
+
+			changeDadAuto('gold')
+			setObjectOrder('dad', getObjectOrder('black') + 1)
+
+			changeBFAuto('bf-gf-lullaby')
+			setProperty('boyfriend.alpha', 0)
+
+			triggerEvent('Change Moving Camera Focus', 'dad2', "dad1")
+			setProperty('dad2.y', getProperty('dad.y') + 25)
+			setProperty('dad2.x', getProperty('dad.x') + 100)
+
+			tweenCameraZoomIn(0.85, 0.75, "cubeinout")
+			setProperty('defaultCamZoom', 0.85)
+
+			setProperty('healthBarBG.alpha', 1)
+			setProperty('healthBar.scale.y', 1.00)
+			setProperty('healthBar.scale.x', 1.00)
 		end
 	end
 
@@ -323,9 +377,9 @@ function onEvent(n, v1, v2)
 		end
 
 		if v1 == 'rethink' then
-			cameraFlash('game', '0xFFFFFFFF', 0.3)
 			setProperty('ostatic.alpha', 1)
-			doTweenAlpha('gonesa','ostatic',0,0.4,'cubeout')
+			doTweenAlpha('gonesa', 'ostatic', 0, 1, 'cubeout')
+			setObjectCamera('ostatic', 'other')
 
 			changeDadAuto('nonsenseGod')
 			changeGFAuto('gf')
@@ -352,13 +406,10 @@ function onEvent(n, v1, v2)
 		end
 
 		if v1 == 'lorethemix' then
-			--cameraFlash('game', '0xFFFFFFFF', 0.7)
+			cameraFlash('game', '0xFFFFFFFF', 0.7)
 			changeDadAuto('mat-aw')
 			changeGFAuto('emptygf')
 			changeBFAuto('stephanie')
-
-			setProperty('debrisdad.alpha', 0)
-			setProperty('dad.x', getProperty('dad.x') + 150)
 
 			triggerEvent('Change Moving Camera Focus', 'dad', "boyfriend")
 
@@ -372,6 +423,40 @@ function onEvent(n, v1, v2)
 				for i = 0,getProperty('notes.length') do
 					if getPropertyFromGroup('notes', i, 'style') ~= 'ourple' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
 						setPropertyFromGroup('notes', i, 'texture', 'ourple')
+					end
+				end
+			end
+		end
+
+		if v1 == 'angry-cup' then
+			changeDadAuto('cuphead-mad')
+			changeGFAuto('emptygf')
+			changeBFAuto('sans-i')
+
+			setProperty('boyfriend.doMissThing', false)
+			setProperty('boyfriend.stopIdle', false)
+			setProperty('boyfriend.color', RGBColor(90, 104, 167))
+
+			triggerEvent('Change Moving Camera Focus', 'dad1', "boyfriend")
+
+			setProperty('dad1.x', getProperty('dad.x') + 50)
+			setProperty('dad1.y', getProperty('dad.y') - 425)
+
+			setProperty('dad1.alpha', 0)
+			setProperty('boyfriend1.alpha', 0)
+			setProperty('BG1 hole.alpha', 0)
+
+
+			for i = 0,7 do
+				cancelTween(i..'Twen')
+				cancelTween(i..'AngleTwen')
+				setPropertyFromGroup('strumLineNotes', i, 'angle', 0)
+				setPropertyFromGroup('strumLineNotes', i, 'texture', 'normal')
+				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
+				
+				for i = 0,getProperty('notes.length') do
+					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+						setPropertyFromGroup('notes', i, 'texture', 'normal')
 					end
 				end
 			end
@@ -483,14 +568,6 @@ function onCreatePost()
 end
 
 function onTimerCompleted(t, l, ll)
-	if t == 'play oof again' then
-		playSound('trainOof', 0.6)
-	end
-
-	if t == 'fail' then
-		openCustomSubstate('FailState', true)
-	end
-
     if t == 'glitchout' then
         setShaderFloat(shaderName, 'PIXEL_FACTOR',  getShaderFloat(shaderName, 'PIXEL_FACTOR') + 27)
 
@@ -533,6 +610,49 @@ function instantSnapCam(x, y)
 end
 
 shaderName = "pixelate"
+
+function addTheDamnSprites()
+	makeAnimatedLuaSprite('noisebomb', 'backgrounds/peppino/delivery/bloodsauce/noise-bomb', -850, -200)
+	addAnimationByPrefix('noisebomb', 'bg', 'noise-bomb idle', 15, true)
+	addLuaSprite('noisebomb', true)
+	setProperty('noisebomb.antialiasing',false)
+	scaleObject('noisebomb', 6, 6)
+	setProperty('noisebomb.visible', false)
+
+	setProperty('noisebomb.x', getProperty('noisebomb.x') - 250)
+	setProperty('noisebomb.y', getProperty('noisebomb.y') - 250)
+
+
+	makeLuaSprite('BG1 hole', 'backgrounds/Awesomix/BG1 hole', -750, -320);
+	setScrollFactor('BG1 hole', 0.8, 0.8);
+	scaleObject('BG1 hole', 0.8, 0.8);
+	addLuaSprite('BG1 hole', false);
+	setProperty('BG1 hole.visible', false)
+
+
+	makeAnimatedLuaSprite('intro', 'backgrounds/indie/cup/the_thing2.0', 0, 0)
+	addAnimationByPrefix('intro', 'enter', 'BOO', 24, false)
+	setProperty('intro.scale.x', 1280/1200)
+	setProperty('intro.scale.y', 1280/1200)
+	setObjectCamera('intro', 'other')
+	addLuaSprite('intro', true)
+	setProperty('intro.alpha', 0)
+
+	makeAnimatedLuaSprite('cup countdown', 'backgrounds/indie/cup/ready_wallop', -600, -100)
+	addAnimationByPrefix('cup countdown', 'idle', 'Ready? WALLOP!', 24, false)
+	setScrollFactor('cup countdown', 0, 0)
+	setProperty('cup countdown.scale.x', 0.8)
+	setProperty('cup countdown.scale.y', 0.8)
+	setObjectCamera('cup countdown', 'other')
+	addLuaSprite('cup countdown', true)
+	setProperty('cup countdown.alpha', 0)
+
+
+	makeLuaSprite('black', 'backgrounds/misc/no', -500, -350);
+	setScrollFactor('black', 0, 0);
+	addLuaSprite('black', false);
+	setProperty('black.alpha', 0)
+end
 
 function addShaderShit()
 	shaderCoordFix() -- initialize a fix for textureCoord when resizing game window
@@ -630,6 +750,14 @@ function dadNoteHit(note, isSustain, noteType, dType)
 		playDadSing = false
 		playActorAnimation('dad1', sDir[note + 1], true, false)
 		setProperty('dad1.holdTimer', 0)
+
+	elseif dType == 2 then
+		playDadSing = true
+		playActorAnimation('dad1', sDir[note + 1], true, false)
+		setProperty('dad1.holdTimer', 0)
+
+		playActorAnimation('dad2', sDir[note + 1], true, false)
+		setProperty('dad2.holdTimer', 0)
 
 	elseif dType == 3 then
 		playDadSing = true
