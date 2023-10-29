@@ -5,14 +5,6 @@ function onCreate()
 
 	changeBFIcon('bfbl')
 
-	makeHealthIcon('iconP4', 'bob', false)
-	setObjectOrder('iconP4', getObjectOrder('iconP2') + 1)
-	setProperty('iconP4.alpha', 0)
-
-	makeHealthIcon('iconP3', 'gfbl', true)
-	setObjectOrder('iconP3', getObjectOrder('iconP1') + 1)
-	setProperty('iconP3.alpha', 0)
-
 	iconY = getProperty('iconP1.y')
 
 	setObjectOrder('dad1', getObjectOrder('rain') - 1)
@@ -20,6 +12,10 @@ function onCreate()
 	setObjectOrder('boyfriend1', getObjectOrder('rain') - 1)
 	setObjectOrder('noisebomb', getObjectOrder('rain') - 1)
 	setObjectOrder('cup countdown', getObjectOrder('intro') - 1)
+
+
+	setObjectOrder('iconP6', getObjectOrder('iconP4') - 1)
+	setObjectOrder('iconP5', getObjectOrder('iconP3') - 1)
 end
 
 turnOnBotplay = false
@@ -30,11 +26,9 @@ function onEvent(n, v1, v2)
 			doTweenAlpha('bob', 'dad1', 1, 0.75)
 			setProperty('dad1.y', getProperty('dad.y') + 390)
 			setProperty('dad1.x', getProperty('dad.x') + 450)
+
 			changeDadIcon('bob')
 			updateHealthbar(getProperty('dad1.iconColor'))
-			playDadReal = false
-
-			triggerEvent('Change Moving Camera Focus', 'dad', "gf")
 
 			for i = 0,3 do
 				cancelTween(i..'Twen')
@@ -53,20 +47,18 @@ function onEvent(n, v1, v2)
 
 		if v1 == 'gf-icon' then
 			changeBFIcon('gfbl')
-			updateHealthbar('dad1.iconColor', getProperty('gf.iconColor'))
+			setHealthBarColors(rgbToHex(getProperty('dad1'..'.healthColorArray')), rgbToHex(getProperty('gf.healthColorArray')))
+
+			triggerEvent('Change Moving Camera Focus', 'dad', "gf")
 		end
 
 		if v1 == 'bob2' then
-			useDoubleDadIcons = true
+			setProperty('iconP4.alpha', 1)
 			changeLuaCharacter('dad1', 'bob-on')
 			changeAddedIcon('iconP4', getProperty('dad1.healthIcon'))
+
 			setProperty('dad1.y', getProperty('dad.y') + 390)
 			setProperty('dad1.x', getProperty('dad.x') + 450)
-
-			--setProperty('dad1.doMissThing', false)
-			--setProperty('dad1.color', RGBColor(200,123,116))
-
-			triggerEvent('Change Moving Camera Focus', 'dad', "boyfriend")
 
 			changeBFIcon('gfbl')
 			updateHealthbar('', getProperty('gf.iconColor'))
@@ -87,9 +79,11 @@ function onEvent(n, v1, v2)
 		end
 
 		if v1 == 'bfgf' then
-			useDoubleBFIcons = true
+			setProperty('iconP3.alpha', 1)
 			changeBFIcon('bfbl')
 			updateHealthbar('', getProperty('boyfriend.iconColor'))
+
+			triggerEvent('Change Moving Camera Focus', 'dad', "boyfriend")
 		end
 
 		if v1 == 'bye notes' then
@@ -107,8 +101,12 @@ function onEvent(n, v1, v2)
         end
 
 		if v1 == 'bf2' then
-			useDoubleDadIcons = false
 			setProperty('iconP4.alpha', 0)
+			resetIconPos('iconP2')
+
+			changeIcon('iconP2', getProperty('dad2.healthIcon'))
+			updateHealthbar(getProperty('dad2.iconColor'), getProperty('boyfriend.iconColor'))
+
 			setProperty('dad2.alpha', 1)
 
 			doTweenY('RonUp', 'dad', getProperty('dad.y') - 125, (stepCrochet*4)/500, 'quintInOut')
@@ -118,10 +116,10 @@ function onEvent(n, v1, v2)
 			setObjectOrder('gf', getObjectOrder('dad1') + 1)
 
 			doTweenX('bf2', 'dad2', getProperty('dad2.x') + 1000, (stepCrochet*4)/500, 'quintInOut')
-			changeDadIcon('bf2')
-			updateHealthbar(getProperty('dad2.iconColor'))
 
 			setObjectOrder('bf', getObjectOrder('gf') + 1)
+
+
 
 			setProperty('dad2.doMissThing', false)
 			setProperty('dad2.color', RGBColor(200,123,116))
@@ -144,8 +142,14 @@ function onEvent(n, v1, v2)
 		end
 
 		if v1 == 'oli chet' then
-			useDoubleBFIcons = false
 			setProperty('iconP3.alpha', 0)
+			resetIconPos('iconP1')
+
+
+			changeIcon('iconP1', getProperty('boyfriend1.healthIcon'))
+			updateHealthbar(getProperty('dad2.iconColor'), getProperty('boyfriend1.iconColor'))
+
+
 			setProperty('boyfriend1.alpha', 1)
 
 			doTweenY('Upfriend', 'bf', getProperty('bf.y') - 125, (stepCrochet*4)/500, 'quintInOut')
@@ -153,9 +157,9 @@ function onEvent(n, v1, v2)
 
 			doTweenX('bambi', 'boyfriend1', getProperty('boyfriend1.x') - 1250, 0.5, 'quintInOut')
 
-			changeBFIcon('bambi-new')
-			updateHealthbar(getProperty('dad2.iconColor'), getProperty('boyfriend1.iconColor'))
 			setObjectOrder('boyfriend1', getObjectOrder('gf') + 1)
+
+
 
 			setProperty('boyfriend1.doMissThing', false)
 			setProperty('boyfriend1.color', RGBColor(200,123,116))
@@ -170,7 +174,7 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'normal')
 					end
 				end
@@ -186,6 +190,10 @@ function onEvent(n, v1, v2)
 
 		if v1 == 'glitching in' then
 			runTimer('glitchin', 0.02)
+		end
+
+		if v1 == 'pea' then
+			runTimer('pea', 0.01)
 		end
 
 		if v1 == 'donde esta el titan spikerman' then
@@ -221,6 +229,62 @@ function onEvent(n, v1, v2)
 
 			changeDadIcon('police-guy')
 			updateHealthbar(getProperty('dad1.iconColor'))
+		end
+
+		if v1 == 'poem' then
+			setProperty('Poem.alpha', 1)
+			playBGAnimation('Poem', 'idle', true, false)
+
+		     if getPropertyFromClass("flixel.FlxG", 'save.data.botplay') == false then
+			   turnOnBotplay = true
+			   setPropertyFromClass("flixel.FlxG", 'save.data.botplay', true)
+		    end
+		end
+
+		if v1 == 'poem-2' then
+			setProperty('Poem.alpha', 1)
+			playBGAnimation('Poem', 'idle', true, true)
+		end
+
+		if v1 == 'poem-end' then
+			setProperty('Poem.alpha', 0)
+
+			if turnOnBotplay == true then
+			   turnOnBotplay = false
+			   setPropertyFromClass("flixel.FlxG", 'save.data.botplay', false)
+			end
+		end
+
+		if v1 == 'eso no es bueno' then
+			setProperty('dad1.alpha', 1)
+
+			changeIcon('iconP2', getProperty('dad1.healthIcon'))
+			updateHealthbar(getProperty('dad1.iconColor'), getProperty('boyfriend1.iconColor'))
+
+			setObjectOrder('dad1', getObjectOrder('dad') + 1)
+			doTweenY('sex', 'dad1', getProperty('dad1.y') - 625, 0.5, 'cubeout')
+			doTweenX('yuri', 'dad', getProperty('dad.x') + 250 , 0.5)
+
+			changeBFAuto('sunky-new')
+			setProperty('boyfriend.alpha', 0)
+
+			setProperty('dad2.x', getProperty('dad.x') + 360)
+			setProperty('dad2.y', getProperty('dad.y') + 275)
+			triggerEvent('Change Moving Camera Focus', 'dad2', "dad2")
+
+			for i = 4,7 do
+				cancelTween(i..'Twen')
+				cancelTween(i..'AngleTwen')
+				setPropertyFromGroup('strumLineNotes', i, 'angle', 0)
+				setPropertyFromGroup('strumLineNotes', i, 'texture', 'normal')
+				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
+				
+				for i = 0,getProperty('notes.length') do
+					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then
+						setPropertyFromGroup('notes', i, 'texture', 'normal')
+					end
+				end
+			end
 		end
 
 		if v1 == 'cup-intro' then
@@ -269,6 +333,9 @@ function onEvent(n, v1, v2)
 		end
 
 		if v1 == 'gold hi' then
+			setTextFont('scoreTxt', 'vcr.ttf')
+			setTextFont('timeTxt', 'vcr.ttf')
+
 			setObjectOrder('dad1', getObjectOrder('black') - 1)
 
 			changeDadAuto('gold')
@@ -288,6 +355,59 @@ function onEvent(n, v1, v2)
 			setProperty('healthBar.scale.y', 1.00)
 			setProperty('healthBar.scale.x', 1.00)
 		end
+
+		if v1 == 'ski' then
+			changeLuaCharacter('dad1', 'ski2')
+			setObjectOrder('dad1', getObjectOrder('dad') + 1)
+			setProperty('dad1.y', getProperty('dad.y') + 225)
+			setProperty('dad1.x', getProperty('dad.x') + 400)
+			characterZoom('dad1', 1.3)
+
+			setProperty('dad1.y', getProperty('dad1.y') + 725)
+			doTweenY('pow', 'dad1', getProperty('dad1.y') - 725 , 0.5)
+
+			changeLuaCharacter('boyfriend1', 'sky2')
+			setProperty('boyfriend1.alpha', 0)
+
+			changeIcon('iconP2', getProperty('dad1.healthIcon'))
+			changeIcon('iconP1', getProperty('boyfriend1.healthIcon'))
+			updateHealthbar(getProperty('dad1.iconColor'), getProperty('boyfriend1.iconColor'))
+
+			triggerEvent('Change Moving Camera Focus', 'camara para el final', "camara para el final")
+			setProperty('camara para el final.y', getProperty('dad1.y') - 750)
+			setProperty('camara para el final.x', getProperty('dad1.x') + 115)
+		end
+
+		if v1 == 'starved' then
+			changeLuaCharacter('dad2', 'starved')
+			setObjectOrder('dad2', getObjectOrder('dad') - 1)
+			setProperty('dad2.y', getProperty('dad1.y') - 125)
+			setProperty('dad2.x', getProperty('dad1.x') + 500)
+
+			setProperty('dad2.y', getProperty('dad2.y') + 725)
+			doTweenY('starv', 'dad2', getProperty('dad2.y') - 725 , 0.5)
+
+			changeIcon('iconP2', getProperty('dad2.healthIcon'))
+			changeIcon('iconP1', getProperty('boyfriend2.healthIcon'))
+			updateHealthbar(getProperty('dad1.iconColor'), getProperty('boyfriend2.iconColor'))
+		end
+
+		if v1 == 'triple icons' then
+			changeIcon('iconP2', getProperty('dad.healthIcon'))
+			changeIcon('iconP1', getProperty('boyfriend.healthIcon'))
+			updateHealthbar(getProperty('dad.iconColor'), getProperty('boyfriend.iconColor'))
+
+			changeAddedIcon('iconP4', getProperty('dad1.healthIcon'))
+			changeAddedIcon('iconP3', getProperty('boyfriend1.healthIcon'))
+
+			setProperty('iconP4.alpha', 1)
+			setProperty('iconP3.alpha', 1)
+
+			changeAddedIcon('iconP6', getProperty('dad2.healthIcon'))
+
+			setProperty('iconP6.alpha', 1)
+			setProperty('iconP5.alpha', 1)
+		end
 	end
 
 	if n == 'Change Stage' then
@@ -298,13 +418,11 @@ function onEvent(n, v1, v2)
 			changeBFAuto('the-noise')
 			setProperty('noisebomb.visible', false)
 
+			setProperty('dad1.alpha', 0)
 			setProperty('dad2.alpha', 0)
 			setProperty('boyfriend1.alpha', 0)
 
-			setProperty('dad1.alpha', 0)
-			useDoubleDadIcons = false
 			setProperty('iconP4.alpha', 0)
-			useDoubleBFIcons = false
 			setProperty('iconP3.alpha', 0)
 
 			triggerEvent('Change Moving Camera Focus', "gf", "gf")
@@ -318,7 +436,7 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'pixel' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'pixel' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'pixel')
 					end
 				end
@@ -342,7 +460,7 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'normal')
 					end
 				end
@@ -369,7 +487,7 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'pixel' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'pixel' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'pixel')
 					end
 				end
@@ -398,7 +516,7 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'Nonsense_NOTE_assets' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'Nonsense_NOTE_assets' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'Nonsense_NOTE_assets')
 					end
 				end
@@ -407,6 +525,10 @@ function onEvent(n, v1, v2)
 
 		if v1 == 'lorethemix' then
 			cameraFlash('game', '0xFFFFFFFF', 0.7)
+
+			setTextFont('scoreTxt', 'vcr-ourple.ttf')
+			setTextFont('timeTxt', 'vcr-ourple.ttf')
+
 			changeDadAuto('mat-aw')
 			changeGFAuto('emptygf')
 			changeBFAuto('stephanie')
@@ -421,14 +543,82 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'ourple' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'ourple' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'ourple')
 					end
 				end
 			end
 		end
 
+		if v1 == 'LawnFront' then
+			setTextFont('scoreTxt', 'PvZ.ttf')
+			setTextFont('timeTxt', 'PvZ.ttf')
+
+			changeDadAuto('Peashooter')
+			changeGFAuto('zombiegf')
+			changeBFAuto('ELG')
+
+			setProperty('dad1.alpha', 0)
+			setProperty('boyfriend1.alpha', 0)
+			setProperty('BG1 hole.alpha', 0)
+
+			triggerEvent('Change Moving Camera Focus', 'dad', "boyfriend")
+
+			for i = 0,7 do
+				cancelTween(i..'Twen')
+				cancelTween(i..'AngleTwen')
+				setPropertyFromGroup('strumLineNotes', i, 'angle', 0)
+				setPropertyFromGroup('strumLineNotes', i, 'texture', 'normal')
+				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
+				
+				for i = 0,getProperty('notes.length') do
+					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then
+						setPropertyFromGroup('notes', i, 'texture', 'normal')
+					end
+				end
+			end
+		end
+
+		if v1 == 'markov-closet' then
+			setTextFont('scoreTxt', 'vcr.ttf')
+			setTextFont('timeTxt', 'vcr.ttf')
+
+			changeDadAuto('yuri-closeup')
+			changeGFAuto('emptygf')
+			changeBFAuto('sayori')
+
+			setProperty('boyfriend.alpha', 0)
+
+			changeLuaCharacter('dad1', 'SonicSez')
+			setProperty('dad1.alpha', 0)
+
+			setProperty('dad1.x', getProperty('dad.x') - 450)
+			setProperty('dad1.y', getProperty('dad1.y') + 625)
+
+
+			setProperty('dad2.x', getProperty('dad.x') + 450)
+			setProperty('dad2.y', getProperty('dad.y') + 275)
+			triggerEvent('Change Moving Camera Focus', 'dad2', "boyfriend")
+
+			for i = 0,7 do
+				cancelTween(i..'Twen')
+				cancelTween(i..'AngleTwen')
+				setPropertyFromGroup('strumLineNotes', i, 'angle', 0)
+				setPropertyFromGroup('strumLineNotes', i, 'texture', 'doki')
+				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
+				
+				for i = 0,getProperty('notes.length') do
+					if getPropertyFromGroup('notes', i, 'style') ~= 'doki' and getPropertyFromGroup('notes', i, 'mustPress') == true then
+						setPropertyFromGroup('notes', i, 'texture', 'doki')
+					end
+				end
+			end
+		end
+
 		if v1 == 'angry-cup' then
+			setTextFont('scoreTxt', 'CupheadICFont.ttf')
+			setTextFont('timeTxt', 'CupheadICFont.ttf')
+
 			changeDadAuto('cuphead-mad')
 			changeGFAuto('emptygf')
 			changeBFAuto('sans-i')
@@ -439,13 +629,10 @@ function onEvent(n, v1, v2)
 
 			triggerEvent('Change Moving Camera Focus', 'dad1', "boyfriend")
 
+			changeLuaCharacter('dad1', 'police-guy')
+			setProperty('dad1.alpha', 0)
 			setProperty('dad1.x', getProperty('dad.x') + 50)
 			setProperty('dad1.y', getProperty('dad.y') - 425)
-
-			setProperty('dad1.alpha', 0)
-			setProperty('boyfriend1.alpha', 0)
-			setProperty('BG1 hole.alpha', 0)
-
 
 			for i = 0,7 do
 				cancelTween(i..'Twen')
@@ -455,7 +642,7 @@ function onEvent(n, v1, v2)
 				noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
 				
 				for i = 0,getProperty('notes.length') do
-					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then -- because using texture doesn't work!!??
+					if getPropertyFromGroup('notes', i, 'style') ~= 'normal' and getPropertyFromGroup('notes', i, 'mustPress') == true then
 						setPropertyFromGroup('notes', i, 'texture', 'normal')
 					end
 				end
@@ -464,45 +651,12 @@ function onEvent(n, v1, v2)
 	end
 end
 
+isPsychUI = true
+
 function onUpdate(elapsed)
 	if getProperty('songStarted') == true then
 		local currentBeat = (getPropertyFromClass("Conductor", "songPosition") / 1000)*(bpm/60)
 	
-		if getProperty('iconP4.alpha') == 1 then
-			setProperty('iconP4.scale.x', getProperty('iconP2.scale.x'))
-			setProperty('iconP4.scale.y', getProperty('iconP2.scale.y'))
-	
-			setProperty('iconP4.animation.curAnim.curFrame', getProperty('iconP2.animation.curAnim.curFrame'))
-		end
-	
-		if getProperty('iconP3.alpha') == 1 then
-			setProperty('iconP3.scale.x', getProperty('iconP1.scale.x'))
-			setProperty('iconP3.scale.y', getProperty('iconP1.scale.y'))
-			setProperty('iconP3.animation.curAnim.curFrame', getProperty('iconP1.animation.curAnim.curFrame'))
-		end
-
-		
-		if useDoubleDadIcons == true then
-			setProperty('opponentIconScale', 1.05)
-			setProperty('iconP4.x', getProperty('iconP2.x') - 50)
-			setProperty('iconP4.alpha', getProperty('iconP2.alpha'))
-		end
-	
-		if useDoubleBFIcons == true then
-			setProperty('playerIconScale', 1.05)
-			setProperty('iconP3.x', getProperty('iconP1.x') + 30)
-			setProperty('iconP3.alpha', getProperty('iconP1.alpha'))
-		end
-
-		if useDoubleDadIcons == false and getProperty('opponentIconScale') ~= 1.2 then
-			setProperty('opponentIconScale', 1.2)
-		end
-
-		if useDoubleBFIcons == false and getProperty('playerIconScale') ~= 1.2 then
-			setProperty('playerIconScale', 1.2)
-		end
-	end
-
 	if getProperty('health') > 1.5 then
     	    doTweenAlpha('alphap', 'iconP2', 0.1, 0.5);
     	    doTweenAlpha('alphaa', 'iconP1', 1, 0.5);
@@ -526,42 +680,101 @@ function onUpdate(elapsed)
 end
 
 function onUpdatePost()
-	if useDoubleBFIcons == true then
-		if getProperty('iconP1.y') ~= iconY - 20 then
-			setProperty('iconP1.y', iconY - 20)
-			setProperty('iconP3.y', getProperty('iconP1.y') + 40)
+		if getProperty('iconP3.alpha') ~= 0 and getProperty('iconP1.y') ~= iconY - 10 then
+			setProperty('iconP1.y', iconY - 10)
+			setProperty('iconP3.y', iconY + 10)
+
+			setProperty('playerIconScale', 0.96)
 		end
 
-		if getProperty('iconP3.animation.name') == 'solid' and curStep >= 1056 and curStep < 1152 then
-			setProperty('iconP3.scale.x', getProperty('iconP1.scale.x') + 0.15)
-			setProperty('iconP3.scale.y', getProperty('iconP1.scale.y') + 0.15)
+		if getProperty('iconP4.alpha') ~= 0 and getProperty('iconP2.y') ~= iconY - 10 then
+			setProperty('iconP2.y', iconY - 10)
+			setProperty('iconP4.y', iconY + 10)
+			
+			setProperty('opponentIconScale', 0.96)
 		end
-	end
 
-	if useDoubleDadIcons == true then
-		if getProperty('iconP2.y') ~= iconY - 20 then
-			setProperty('iconP2.y', iconY - 20)
-			setProperty('iconP4.y', getProperty('iconP2.y') + 40)
+		if getProperty('iconP3.alpha') ~= 0 then
+			setProperty('iconP3.flipX', getProperty('iconP1.flipX'))
+
+			if getProperty('iconP3.flipX') then
+				setProperty('iconP3.x', getProperty('iconP1.x') - 12)
+			else
+				setProperty('iconP3.x', getProperty('iconP1.x') + 22)
+			end
+
+			setProperty('iconP3.scale.x', getProperty('iconP1.scale.x'))
+			setProperty('iconP3.scale.y', getProperty('iconP1.scale.y'))
+			setProperty('iconP3.alpha', getProperty('iconP1.alpha'))
+			setProperty('iconP3.animation.curAnim.curFrame', getProperty('iconP1.animation.curAnim.curFrame'))
+		end
+
+		if getProperty('iconP4.alpha') ~= 0 then
+			setProperty('iconP4.flipX', getProperty('iconP2.flipX'))
+			setProperty('iconP4.scale.x', getProperty('iconP2.scale.x'))
+			setProperty('iconP4.scale.y', getProperty('iconP2.scale.y'))
+			setProperty('iconP4.alpha', getProperty('iconP2.alpha'))
+
+			if getProperty('iconP4.flipX') then
+				setProperty('iconP4.x', getProperty('iconP2.x') + 12)
+			else
+				setProperty('iconP4.x', getProperty('iconP2.x') - 55)
+			end
+		
+			setProperty('iconP4.animation.curAnim.curFrame', getProperty('iconP2.animation.curAnim.curFrame'))
+		end
+
+
+
+		if getProperty('iconP5.alpha') ~= 0 and getProperty('iconP3.y') ~= iconY - 10 then
+			setProperty('iconP3.y', iconY - 10)
+			setProperty('iconP5.y', iconY - 30)
+
+			setProperty('playerIconScale', 0.96)
+		end
+
+		if getProperty('iconP6.alpha') ~= 0 and getProperty('iconP4.y') ~= iconY - 10 then
+			setProperty('iconP4.y', iconY - 10)
+			setProperty('iconP6.y', iconY - 40)
+			
+			setProperty('opponentIconScale', 0.96)
+		end
+
+		if getProperty('iconP5.alpha') ~= 0 then
+			setProperty('iconP5.flipX', getProperty('iconP1.flipX'))
+
+			if getProperty('iconP5.flipX') then
+				setProperty('iconP5.x', getProperty('iconP3.x') - 12)
+			else
+				setProperty('iconP5.x', getProperty('iconP3.x') + 40)
+			end
+
+			setProperty('iconP5.scale.x', getProperty('iconP3.scale.x'))
+			setProperty('iconP5.scale.y', getProperty('iconP3.scale.y'))
+			setProperty('iconP5.alpha', getProperty('iconP3.alpha'))
+			setProperty('iconP5.animation.curAnim.curFrame', getProperty('iconP3.animation.curAnim.curFrame'))
+		end
+
+		if getProperty('iconP6.alpha') ~= 0 then
+			setProperty('iconP6.flipX', getProperty('iconP4.flipX'))
+			setProperty('iconP6.scale.x', getProperty('iconP4.scale.x'))
+			setProperty('iconP6.scale.y', getProperty('iconP4.scale.y'))
+			setProperty('iconP6.alpha', getProperty('iconP4.alpha'))
+
+			if getProperty('iconP6.flipX') then
+				setProperty('iconP6.x', getProperty('iconP4.x') + 12)
+			else
+				setProperty('iconP6.x', getProperty('iconP4.x') - 30)
+			end
+		
+			setProperty('iconP6.animation.curAnim.curFrame', getProperty('iconP4.animation.curAnim.curFrame'))
 		end
 	end
 end
 
 function stepHit (step)
 	if curStep == 32 then
-	for i = 4,7 do
-		cancelTween(i..'Twen')
-		cancelTween(i..'AngleTwen')
-		setPropertyFromGroup('strumLineNotes', i, 'angle', 0)
-		setPropertyFromGroup('strumLineNotes', i, 'texture', 'bf-ron')
-		noteTweenAngle(i..'AngleTwen', i, 360, (stepCrochet*4)/1000, 'cubeout')
-				
-		for i = 0,getProperty('notes.length') do
-			if getPropertyFromGroup('notes', i, 'style') ~= 'bf-ron' and getPropertyFromGroup('notes', i, 'mustPress') == false then
-				setPropertyFromGroup('notes', i, 'texture', 'bf-ron')
-			end
-		   end
-	    end
-     end
+        end
 end
 
 function onCreatePost()
@@ -591,6 +804,17 @@ function onTimerCompleted(t, l, ll)
             setShaderFloat(shaderName, 'PIXEL_FACTOR',  8)
         end
     end
+
+    if t == 'pea' then
+	    setProperty('Pea.alpha', 1)
+	    triggerEvent('Screen Shake', '0.35, 0.05', '0.35, 0.05')
+	    playSound('pea-splat', 1, 'pea')
+            runTimer('pea bye', 0.25)
+       end
+
+    if t == 'pea bye' then
+            doTweenAlpha('pea bai', 'Pea', 0, 0.25)
+       end
 end
 
 isPsych = false
@@ -612,6 +836,24 @@ end
 shaderName = "pixelate"
 
 function addTheDamnSprites()
+	makeHealthIcon('iconP6', 'starved', false)
+	setObjectOrder('iconP6', getObjectOrder('iconP2') + 1)
+	setProperty('iconP6.alpha', 0)
+
+	makeHealthIcon('iconP4', 'bob', false)
+	setObjectOrder('iconP4', getObjectOrder('iconP6') + 1)
+	setProperty('iconP4.alpha', 0)
+
+	makeHealthIcon('iconP5', 'tails-fof', true)
+	setObjectOrder('iconP5', getObjectOrder('iconP1') + 1)
+	setProperty('iconP5.alpha', 0)
+
+	makeHealthIcon('iconP3', 'gfbl', true)
+	setObjectOrder('iconP3', getObjectOrder('iconP1') + 1)
+	setProperty('iconP3.alpha', 0)
+
+
+
 	makeAnimatedLuaSprite('noisebomb', 'backgrounds/peppino/delivery/bloodsauce/noise-bomb', -850, -200)
 	addAnimationByPrefix('noisebomb', 'bg', 'noise-bomb idle', 15, true)
 	addLuaSprite('noisebomb', true)
@@ -628,6 +870,22 @@ function addTheDamnSprites()
 	scaleObject('BG1 hole', 0.8, 0.8);
 	addLuaSprite('BG1 hole', false);
 	setProperty('BG1 hole.visible', false)
+
+
+	makeLuaSprite('Pea', 'backgrounds/stagepvz/PeaSplashing', -650, -150);
+	scaleObject('Pea', 2.25, 2.25);
+	addLuaSprite('Pea', false);
+	setObjectCamera('Pea', 'other')
+	setProperty('Pea.alpha', 0)
+
+
+	makeAnimatedLuaSprite('Poem', 'backgrounds/doki/PoemTransition',  0, 0);
+	addAnimationByPrefix('Poem', 'idle', 'poemtransition', 15, true)
+	addLuaSprite('Poem', true)
+	addLuaSprite('Poem', false);
+	setObjectCamera('Poem', 'other')
+	setProperty('Poem.alpha', 0)
+
 
 
 	makeAnimatedLuaSprite('intro', 'backgrounds/indie/cup/the_thing2.0', 0, 0)
@@ -714,11 +972,17 @@ function makeCharacters()
 	setProperty('boyfriend1.x', getProperty('bf.x') + 1250)
 	setProperty('boyfriend1.y', getProperty('bf.y') + 100)
 
+	makeLuaCharacter('boyfriend2', 'tails-fof', true)
+	setProperty('boyfriend2.alpha', 0)
+
 	makeLuaCharacter('dad2', 'bf2')
 	setProperty('dad2.alpha', 0)
 	setProperty('dad2.x', getProperty('dad.x') + 600)
 	setProperty('dad2.y', getProperty('dad.y') + 680)
 	setProperty('dad2.x', getProperty('dad2.x') - 1000)
+
+	makeLuaCharacter('camara para el final', 'bf2')
+	setProperty('camara para el final.alpha', 0)
 end
 
 function playerOneTurn()
@@ -831,4 +1095,29 @@ function noteMiss(id, note, noteType, isSustain, dType)
 		playActorAnimation('gf', sDir[note+1]..'miss', true)
 		setProperty('gf.holdTimer', 0)
 	end
+end
+
+function rgbToHex(color)
+	local r = color[1]
+	local g = color[2]
+	local b = color[3]
+
+    local rgb = (r * 0x10000) + (g * 0x100) + b
+    return string.upper(string.format("%x", rgb))
+end
+
+function resetIconPos(icon)
+	local scale = 'opponentIconScale'
+
+	if getProperty(icon..'.isPlayer') == true then
+		scale = 'playerIconScale'
+	end
+
+	setProperty(icon..'.y', iconY)
+	setProperty(scale, 1.2)
+end
+
+function setObjectPosition(tag, x, y)
+	setProperty(tag..'.x', x)
+	setProperty(tag..'.y', y)
 end

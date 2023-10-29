@@ -16,5 +16,11 @@
 42 Nonsense_NOTE_assets bf
 45 ourple dad
 45 ourple bf
+61 normal dad
+61 normal bf
+65 doki dad
+65 doki bf
+69 normal dad
+69 normal bf
 73 normal dad
 73 normal bf
